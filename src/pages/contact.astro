@@ -1,7 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-
-// src/pages/contact.astro
 ---
 
 <Layout title="Contact - Livana, Soul Doula" description="Reach out for personalized support in your journey of self-discovery and transformation. Whether you have questions about offerings or want to connect, I'm here to help.">
@@ -63,14 +61,12 @@ import Layout from "../layouts/Layout.astro";
         </div>
 
         <div class="contact-form-container animate-fade-up" style="animation-delay: 0.2s;">
-          <form class="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-            <!-- Hidden fields for Netlify -->
-            <input type="hidden" name="form-name" value="contact" />
-            <input type="hidden" name="subject" value="New inquiry from Livana website (%{formName})" />
-            <div style="display: none;">
-              <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+          <form class="contact-form" id="contactForm" novalidate>
+            <div id="formSuccess" class="form-success">
+              Thank you — I'll respond within 24-48 hours.
             </div>
-            
+            <div id="formError" class="form-error"></div>
+
             <div class="form-group animate-fade-up" style="animation-delay: 0.3s;">
               <label for="name">Name *</label>
               <input type="text" id="name" name="name" required />
@@ -153,8 +149,6 @@ import Layout from "../layouts/Layout.astro";
         </div>
       </div>
     </footer>
-  </body>
-</html>
 
 <style>
   html,
@@ -174,7 +168,6 @@ import Layout from "../layouts/Layout.astro";
     box-sizing: border-box;
   }
 
-  /* Animation Classes */
   .animate-on-scroll {
     opacity: 0;
     transform: translateY(50px);
@@ -269,24 +262,6 @@ import Layout from "../layouts/Layout.astro";
     padding-top: 14rem;
   }
 
-  .main-title {
-    font-size: 4rem;
-    font-weight: 300;
-    margin-bottom: 1rem;
-    letter-spacing: 2px;
-    opacity: 0;
-    animation: fadeInUp 1s ease forwards 0.5s;
-  }
-
-  .subtitle {
-    font-size: 2.5rem;
-    font-weight: 300;
-    margin-bottom: 2rem;
-    letter-spacing: 1px;
-    opacity: 0;
-    animation: fadeInUp 1s ease forwards 0.8s;
-  }
-
   .description {
     font-size: 1.2rem;
     line-height: 1.8;
@@ -299,7 +274,6 @@ import Layout from "../layouts/Layout.astro";
     animation: fadeInUp 1s ease forwards 1.1s;
   }
 
-  /* Contact Section */
   .contact-section {
     background: #f8f4ff;
     color: #2d2d3d;
@@ -383,7 +357,6 @@ import Layout from "../layouts/Layout.astro";
     color: #4a4a6a;
   }
 
-  /* Contact Form */
   .contact-form-container {
     opacity: 0;
     animation: fadeInUp 0.8s ease forwards 0.6s;
@@ -474,7 +447,6 @@ import Layout from "../layouts/Layout.astro";
     transform: none;
   }
 
-  /* Consultation Section */
   .consultation-section {
     background: white;
     color: #2d2d3d;
@@ -505,7 +477,6 @@ import Layout from "../layouts/Layout.astro";
     font-weight: 300;
   }
 
-  /* Footer Section */
   .footer-section {
     background: #2d2d3d;
     color: white;
@@ -586,14 +557,13 @@ import Layout from "../layouts/Layout.astro";
     font-style: italic;
   }
 
-  /* Success message styling */
   .form-success {
-    background: #d4edda;
-    color: #155724;
+    background: #f0eaff;
+    color: #4a4a6a;
     padding: 1rem;
     border-radius: 10px;
     margin-bottom: 2rem;
-    border: 1px solid #c3e6cb;
+    border: 1px solid #c4a5c7;
     display: none;
   }
 
@@ -634,14 +604,6 @@ import Layout from "../layouts/Layout.astro";
 
     .hero-content img {
       width: 300px !important;
-    }
-
-    .main-title {
-      font-size: 2.5rem;
-    }
-
-    .subtitle {
-      font-size: 1.8rem;
     }
 
     .description {
@@ -691,7 +653,6 @@ import Layout from "../layouts/Layout.astro";
   }
 
   @media (max-width: 480px) {
-
     .contact-title {
       font-size: 1.8rem;
     }
@@ -707,70 +668,63 @@ import Layout from "../layouts/Layout.astro";
 </style>
 
 <script>
-  // Add form submission handling
-  document.addEventListener('DOMContentLoaded', function() {
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px 0px -100px 0px',
-      threshold: 0.1
-    };
-
+  document.addEventListener('DOMContentLoaded', function () {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-visible');
-        }
+        if (entry.isIntersecting) entry.target.classList.add('animate-visible');
       });
-    }, observerOptions);
+    }, { root: null, rootMargin: '0px 0px -100px 0px', threshold: 0.1 });
 
-    // Observe all elements with animation classes
-    document.querySelectorAll('.animate-on-scroll, .animate-fade-up').forEach(el => {
-      observer.observe(el);
-    });
+    document.querySelectorAll('.animate-on-scroll, .animate-fade-up').forEach(el => observer.observe(el));
 
-    const form = document.querySelector('.contact-form');
-    const submitButton = form.querySelector('.submit-button');
-    
-    form.addEventListener('submit', function(e) {
-      e.preventDefault(); // Prevent default form submission
-      
-      // Disable submit button to prevent multiple submissions
-      submitButton.disabled = true;
-      submitButton.textContent = 'Sending...';
-      
-      // Create FormData object
-      const formData = new FormData(form);
-      
-      // Submit form using fetch with Netlify's proper endpoint
-      fetch('/', {
-        method: 'POST',
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(formData).toString()
-      })
-      .then(response => {
-        if (response.ok) {
-          // Show success message
-          const formContainer = document.querySelector('.contact-form-container');
-          formContainer.innerHTML = `
-            <div class="contact-form" style="text-align: center; padding: 4rem 3rem;">
-              <div style="color: #155724; background: #d4edda; padding: 2rem; border-radius: 15px; border: 1px solid #c3e6cb; margin-bottom: 2rem;">
-                <h3 style="margin-bottom: 1rem; color: #155724;">Message Sent Successfully!</h3>
-                <p style="margin: 0; color: #155724;">Thank you for reaching out. I'll respond to your message within 24-48 hours.</p>
-              </div>
-              <a href="/contact" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6b5b95, #8b7faa); color: white; text-decoration: none; border-radius: 10px; font-weight: 400; letter-spacing: 1px;">Send Another Message</a>
-            </div>
-          `;
+    const form = document.getElementById('contactForm') as HTMLFormElement;
+    const submitBtn = form.querySelector('.submit-button') as HTMLButtonElement;
+    const successMsg = document.getElementById('formSuccess') as HTMLElement;
+    const errorMsg = document.getElementById('formError') as HTMLElement;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Sending...';
+      submitBtn.disabled = true;
+      successMsg.style.display = 'none';
+      errorMsg.style.display = 'none';
+
+      const payload = {
+        name:         (form.querySelector('#name') as HTMLInputElement).value.trim(),
+        email:        (form.querySelector('#email') as HTMLInputElement).value.trim(),
+        phone:        (form.querySelector('#phone') as HTMLInputElement).value.trim(),
+        consultation: (form.querySelector('#consultation') as HTMLSelectElement).value,
+        message:      (form.querySelector('#message') as HTMLTextAreaElement).value.trim(),
+      };
+
+      try {
+        const res = await fetch('/form-handler.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          successMsg.textContent = data.message;
+          successMsg.style.display = 'block';
+          form.reset();
+          submitBtn.textContent = 'Sent!';
         } else {
-          throw new Error('Form submission failed');
+          errorMsg.textContent = data.message || 'Something went wrong. Please try again.';
+          errorMsg.style.display = 'block';
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
         }
-      })
-      .catch((error) => {
-        // Reset button on error
-        submitButton.disabled = false;
-        submitButton.textContent = 'Send Message';
-        alert('There was an error sending your message. Please try again.');
-      });
+      } catch {
+        errorMsg.textContent = 'Something went wrong. Please email livana@livanasouldoula.com directly.';
+        errorMsg.style.display = 'block';
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
     });
   });
 </script>
